@@ -5,10 +5,8 @@ let vid_width = vid.width;
 let vid_height = vid.height;
 let overlay = document.getElementById('overlay');
 let overlayCC = overlay.getContext('2d');
-let container = document.getElementById('container');
 
 /*********** Setup of video/webcam and checking for webGL support *********/
-
 function enablestart() {
     var startbutton = document.getElementById('startbutton');
     startbutton.value = "start";
@@ -32,7 +30,7 @@ var insertAltVideo = function(video) {
 function adjustVideoProportions() {
     // resize overlay and video if proportions of video are not 4:3
     // keep same height, just change width
-    var proportion = vid.videoWidth/vid.videoHeight;
+    var proportion = vid_width / vid_height;
     vid_width = Math.round(vid_height * proportion);
     vid.width = vid_width;
     overlay.width = vid_width;
@@ -59,27 +57,14 @@ function gumSuccess( stream ) {
     }
 }
 
-function gumFail() {
-    // fall back to video if getUserMedia failed
-    insertAltVideo(vid);
-    document.getElementById('gum').className = "hide";
-    document.getElementById('nogum').className = "nohide";
-    alert("There was some problem trying to fetch video from your webcam, using a fallback video instead.");
-}
-
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
 
 // set up video
 if (navigator.mediaDevices) {
-    navigator.mediaDevices.getUserMedia({video : true}).then(gumSuccess).catch(gumFail);
+    navigator.mediaDevices.getUserMedia({video : true}).then(gumSuccess);
 } else if (navigator.getUserMedia) {
-    navigator.getUserMedia({video : true}, gumSuccess, gumFail);
-} else {
-    insertAltVideo(vid);
-    document.getElementById('gum').className = "hide";
-    document.getElementById('nogum').className = "nohide";
-    alert("Your browser does not seem to support getUserMedia, using a fallback video instead.");
+    navigator.getUserMedia({video : true}, gumSuccess);
 }
 
 vid.addEventListener('canplay', enablestart, false);
@@ -165,7 +150,7 @@ function drawLoop() {
 let stats = new Stats();
 stats.domElement.style.position = 'absolute';
 stats.domElement.style.top = '0px';
-container.appendChild( stats.domElement );
+document.body.appendChild( stats.domElement );
 stats.domElement.style.display = 'none';
 
 // update stats on every iteration
@@ -181,4 +166,4 @@ startButton.disabled = 'disabled';
 startButton.onclick = startVideo;
 startButton.id = 'startbutton';
 // <input class="btn" type="button" value="wait, loading video" disabled="disabled" onclick="startVideo()" id="startbutton"></input>
-container.appendChild(startButton);
+document.body.insertBefore(startButton, overlay);
